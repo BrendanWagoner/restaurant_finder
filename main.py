@@ -3,12 +3,17 @@ import requests
 from pprint import pprint
 
 base_url = "https://maps.googleapis.com/"
-directions_base_url = "https://maps.googleapis.com/"
 api_key = os.environ["MAP_API_KEY"]
 
 
-# finds latitude, and longitude
 def find_restaurant_lat_long(lat: str, long: str) -> 'requests.models.Response':
+    """
+    Uses lat and long inorder to request restaurant data from googles api.
+
+    :param lat: This is a string that represents the latitude.
+    :param long: This is a string that represents the longitude.
+    :return: A response object google's api
+    """
     maps = f'maps/api/place/nearbysearch/json?location={lat}%2C{long}&radius=1500&type=restaurant&key={api_key}'
     url = f'{base_url}{maps}'
     response = requests.request("GET", url)
@@ -36,22 +41,24 @@ def name_rating_parser(restaurant_data: dict):
 def give_directions(destination_place_id: str) -> 'requests.models.Response':
     paris_place_id = "ChIJtTeDfh9w5kcRJEWRKN1Yy6I"
     directions = f"maps/api/directions/json?origin=place_id:{paris_place_id}&destination=place_id:{destination_place_id}&key={api_key}"
-    directions_url = f"{directions_base_url}{directions}"
+    directions_url = f"{base_url}{directions}"
     directions_response = requests.request("GET", directions_url)
     return directions_response
 
 
 # takes direction dict and prints it out slightly nicer
 def print_directions(direction_data: dict):
+    # pprint(direction_data)
     routes = direction_data['routes']
     routes_parts = routes[0]
     routes_dict = routes_parts['legs']
+    pprint(routes_dict)
     legs_dict = routes_dict[0]
     steps = legs_dict['steps']
     steps_dict = steps[0]
     html_instructions = steps_dict['html_instructions']
     remove_symbols_instructions = html_instructions.replace("<b>", "").replace("</b>", "").replace("'", "")
-    print(remove_symbols_instructions)
+    # print(remove_symbols_instructions)
 
 
 # finds lat/long, parses id, name, and rating. Then gives place id to function, which should print out directions,
@@ -59,8 +66,12 @@ def print_directions(direction_data: dict):
 def main():
     my_lat = "48.8584"
     my_long = "2.2945"
-    restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
-    place_id_parser(restaurant_data)
+    error_message = True
+    while error_message:
+        restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
+        if "error_messarsge" not in restaurant_data.keys():
+            error_message = False
+
     directions_data = give_directions(place_id_parser(restaurant_data)).json()
     name = name_rating_parser(restaurant_data)[0]
     rating = name_rating_parser(restaurant_data)[-1]

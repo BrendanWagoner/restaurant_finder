@@ -19,7 +19,6 @@ def find_restaurant_lat_long(lat: str, long: str) -> 'requests.models.Response':
     :param lat: this is a string that represents latitude
     :param long: this is a string that represents longitude
     :return: response of
->>>>>>> dcc8896 (added a ReadMe and better comments, and trimmed some functions down)
     """
     maps = f'maps/api/place/nearbysearch/json?location={lat}%2C{long}&radius=1500&type=restaurant&key={api_key}'
     url = f'{base_url}{maps}'
@@ -66,15 +65,11 @@ def give_directions(destination_place_id: str) -> 'requests.models.Response':
 
 
 def print_directions(direction_data: dict):
-<<<<<<< HEAD
-    # pprint(direction_data)
-=======
     """
     takes data from give_directions and returns a string from "html_instructions" and cleans it up to be readable
     :param direction_data: a dictionary of data, including the directions
     :return: prints out the string, nice and clean
     """
->>>>>>> dcc8896 (added a ReadMe and better comments, and trimmed some functions down)
     routes = direction_data['routes']
     routes_parts = routes[0]
     routes_dict = routes_parts['legs']
@@ -87,7 +82,6 @@ def print_directions(direction_data: dict):
     # print(remove_symbols_instructions)
 
 
-<<<<<<< HEAD
 # finds lat/long, parses id, name, and rating. Then gives place id to function, which should print out directions,
 # also prints a string depending on rating
 def main():
@@ -100,13 +94,13 @@ def main():
             error_message = False
 
     directions_data = give_directions(place_id_parser(restaurant_data)).json()
-=======
+
+
 def rating_printer(restaurant_data: dict):
     """
     takes name, and rating of restaurant, and prints a corresponding string depending on the rating
     :return: a string
     """
->>>>>>> dcc8896 (added a ReadMe and better comments, and trimmed some functions down)
     name = name_rating_parser(restaurant_data)[0]
     rating = name_rating_parser(restaurant_data)[-1]
     if rating >= 3.5:

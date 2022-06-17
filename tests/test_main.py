@@ -1,4 +1,4 @@
-from main import find_restaurant_lat_long, place_id_parser, give_directions
+from main import find_restaurant_lat_long, place_id_parser, give_directions, name_rating_parser
 
 my_lat = "48.8584"
 my_long = "2.2945"
@@ -25,6 +25,13 @@ def test_give_directions():
     assert isinstance(destination_place_id, str)
 
 
+def test_rating_printer():
+    name = name_rating_parser(restaurant_data)[0]
+    rating = name_rating_parser(restaurant_data)[-1]
+    assert 5.0 >= rating
+    assert isinstance(name, str)
+
+
 def test_print_directions():
     directions_data = give_directions(place_id_parser(restaurant_data)).json()
     routes = directions_data['routes']
@@ -37,3 +44,4 @@ def test_print_directions():
     assert isinstance(restaurant_data, dict)
     assert isinstance(directions_data, dict)
     assert isinstance(html_instructions, str)
+

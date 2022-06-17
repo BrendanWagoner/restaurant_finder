@@ -1,8 +1,14 @@
-from main import find_restaurant_lat_long, place_id_parser, give_directions, name_rating_parser
+from main import find_restaurant_lat_long, place_id_parser, give_directions, name_rating_parser, location_input, location_place_id
 
 my_lat = "48.8584"
 my_long = "2.2945"
 restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
+
+# def test_location_input():
+#
+# def test_location_place_id():
+#
+# def test_return_lat_long():
 
 
 def test_find_restaurant_lat_long():

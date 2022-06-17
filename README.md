@@ -1,22 +1,25 @@
-
+class Effiel:
+pass
 # Restaurant Finder
 
 ## Overview
 
-Restaurant Finder lets you input your latitude and longitude, and will find you the first restaurant in a 1500 radius. It will then give you the name, rating, and directions to get there.
+Restaurant Finder lets you input Name or Address of your current location, and will find you the first restaurant in a 1500 radius. It will then give you the name, rating, and directions to get there.
 
-## Usage 
+## Usage
 
 ```python
-my_lat = "48.8584"
-my_long = "2.2945"
+# input
+"""Enter a location: Effiel Tower"""
 
-
-#output should look like this
+# output should look like this
 """
 The restaurant Jules Verne is a great choice with a rating of 4.3.
 
-Head northeast on Rue Jean Rey toward Av. de Suffren
+Head north on Quai Branly toward Pont dIéna
+Merge onto Quai Branly
+Make a U-turn at Prom. dAustralie Destination will be on the right
+
 """
 ```
 
@@ -31,4 +34,4 @@ Brendan Wagoner, and Jeremy Rodrigues
 
 ## Project Status
 
-Working on this project weekly, with goals to finish and have it work for any location.
+Working on this project weekly, now can enter any location and recieve a response. 

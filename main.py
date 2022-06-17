@@ -6,6 +6,46 @@ base_url = "https://maps.googleapis.com/"
 api_key = os.environ["MAP_API_KEY"]
 
 
+def location_input():
+    """
+    Takes input from the user, and returns a dictionary of data regarding the location entered
+    :return: a response from place api
+    """
+    starting_location = input("Enter a Location: ")
+    starting_location_formatted = starting_location.replace(" ", "%20")
+    search = f"/maps/api/place/findplacefromtext/json?input={starting_location_formatted}&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry%2cplace_id&key={api_key}"
+    url = f"{base_url}{search}"
+    response = requests.request("GET", url)
+    return response
+
+
+def location_place_id(location_data: dict):
+    """
+    returns place id to use in directions api
+    :param location_data: the data from location_input
+    :return: the place id of the location you entered
+    """
+    candidates = location_data['candidates']
+    geometry = candidates[0]
+    place_id = geometry['place_id']
+    return place_id
+
+
+def return_lat_long(location_data: dict):
+    """
+    gives back lat and long of location entered to use find_restaurant_lat_long
+    :param location_data: the dict of data given from location_input
+    :return: the lattitude and longitude of the location entered previously
+    """
+    candidates = location_data['candidates']
+    geometry = candidates[0]
+    location = geometry['geometry']
+    location_two = location['location']
+    lat = location_two['lat']
+    long = location_two['lng']
+    return lat, long
+
+
 def find_restaurant_lat_long(lat: str, long: str) -> 'requests.models.Response':
     """
 <<<<<<< HEAD
@@ -18,7 +58,7 @@ def find_restaurant_lat_long(lat: str, long: str) -> 'requests.models.Response':
     uses lat and long to use places api, finds data of restaurants in 1500 radius
     :param lat: this is a string that represents latitude
     :param long: this is a string that represents longitude
-    :return: response of
+    :return: response of place api
     """
     maps = f'maps/api/place/nearbysearch/json?location={lat}%2C{long}&radius=1500&type=restaurant&key={api_key}'
     url = f'{base_url}{maps}'
@@ -51,14 +91,13 @@ def name_rating_parser(restaurant_data: dict):
         return name, rating
 
 
-def give_directions(destination_place_id: str) -> 'requests.models.Response':
+def give_directions(destination_place_id: str, starting_location_place_id: str) -> 'requests.models.Response':
     """
     takes the home place id and destinations place id, and returns data for directions
     :param destination_place_id: should be a string of numbers and letters
     :return: a response from Google, returning data
     """
-    paris_place_id = "ChIJLU7jZClu5kcR4PcOOO6p3I0"
-    directions = f"maps/api/directions/json?origin=place_id:{paris_place_id}&destination=place_id:{destination_place_id}&key={api_key}"
+    directions = f"maps/api/directions/json?origin=place_id:{starting_location_place_id}&destination=place_id:{destination_place_id}&key={api_key}"
     directions_url = f"{base_url}{directions}"
     directions_response = requests.request("GET", directions_url)
     return directions_response
@@ -75,25 +114,11 @@ def print_directions(direction_data: dict):
     routes_dict = routes_parts['legs']
     pprint(routes_dict)
     legs_dict = routes_dict[0]
-    steps = legs_dict['steps']
-    steps_dict = steps[0]
-    html_instructions = steps_dict['html_instructions']
-    remove_symbols_instructions = html_instructions.replace("<b>", "").replace("</b>", "").replace("'", "")
-    # print(remove_symbols_instructions)
-
-
-# finds lat/long, parses id, name, and rating. Then gives place id to function, which should print out directions,
-# also prints a string depending on rating
-def main():
-    my_lat = "48.8584"
-    my_long = "2.2945"
-    error_message = True
-    while error_message:
-        restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
-        if "error_messarsge" not in restaurant_data.keys():
-            error_message = False
-
-    directions_data = give_directions(place_id_parser(restaurant_data)).json()
+    steps_dict = legs_dict['steps']
+    for step in steps_dict:
+        html_instructions = step['html_instructions']
+        remove_symbols_instructions = html_instructions.replace("<b>", "").replace("</b>", "").replace("'", "").replace("</div>", "").replace('<div style="font-size:0.9em">', ' ')
+        print(remove_symbols_instructions)
 
 
 def rating_printer(restaurant_data: dict):
@@ -114,14 +139,21 @@ def main():
     Runs the whole process. Gathers the data, and prints strings for the rating_printer, and the print_directions
     :return: 2 strings, one about the rating, and one with the directions
     """
-    my_lat = "48.8584"
-    my_long = "2.2945"
-    restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
-    directions_data = give_directions(place_id_parser(restaurant_data)).json()
+    location_data = location_input().json()
+    my_lat = return_lat_long(location_data)[0]
+    my_long = return_lat_long(location_data)[-1]
+    error_message = True
+    while error_message:
+        restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
+        if "error_messarsge" not in restaurant_data.keys():
+            error_message = False
+    directions_data = give_directions(place_id_parser(restaurant_data), location_place_id(location_data)).json()
     rating_printer(restaurant_data)
-    # print_directions(directions_data)
-    pprint(directions_data)
-    # print(restaurant_data)
+    print_directions(directions_data)
+    # pprint(directions_data)
+    # pprint(restaurant_data)
+    # pprint(location_data)
+    # print(return_lat_long(location_data))
 
 
 main()

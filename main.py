@@ -5,7 +5,8 @@ from pprint import pprint
 base_url = "https://maps.googleapis.com/"
 api_key = os.environ["MAP_API_KEY"]
 
-
+# TODO order the functions in ordre of when main calls them. It doesnt improve the code but it improves the logic when
+#  looking at it.
 def location_input():
     """
     Takes input from the user, and returns a dictionary of data regarding the location entered
@@ -13,6 +14,7 @@ def location_input():
     """
     starting_location = input("Enter a Location: ")
     starting_location_formatted = starting_location.replace(" ", "%20")
+    # TODO the line below is too long. Its an easy fix ill show you.
     search = f"/maps/api/place/findplacefromtext/json?input={starting_location_formatted}&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry%2cplace_id&key={api_key}"
     url = f"{base_url}{search}"
     response = requests.request("GET", url)
@@ -47,6 +49,7 @@ def return_lat_long(location_data: dict):
 
 
 def find_restaurant_lat_long(lat: str, long: str) -> 'requests.models.Response':
+    # TODO clean up these comments
     """
 <<<<<<< HEAD
     Uses lat and long inorder to request restaurant data from googles api.
@@ -139,13 +142,17 @@ def main():
     Runs the whole process. Gathers the data, and prints strings for the rating_printer, and the print_directions
     :return: 2 strings, one about the rating, and one with the directions
     """
+    # TODO This currently doesnt return anything. Change the function comment above
     location_data = location_input().json()
+    # TODO you dont need to call the return_lat_long() function twice. Just call it once and divide it
     my_lat = return_lat_long(location_data)[0]
+    # TODO also change [-1] to [1]. <- I dont understand why -1 is working (weird)
     my_long = return_lat_long(location_data)[-1]
+    # TODO this while loop should be part of the find_restaurant_lat_long function
     error_message = True
     while error_message:
         restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
-        if "error_messarsge" not in restaurant_data.keys():
+        if "error_message" not in restaurant_data.keys():
             error_message = False
     directions_data = give_directions(place_id_parser(restaurant_data), location_place_id(location_data)).json()
     rating_printer(restaurant_data)

@@ -1,5 +1,3 @@
-class Effiel:
-pass
 # Restaurant Finder
 
 ## Overview

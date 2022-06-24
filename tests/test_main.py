@@ -3,7 +3,8 @@ from main import find_restaurant_lat_long, place_id_parser, give_directions, nam
 my_lat = "48.8584"
 my_long = "2.2945"
 restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
-
+location_data = location_input().json()
+starting_location_place_id = location_place_id(location_data)
 # def test_location_input():
 #
 # def test_location_place_id():
@@ -39,7 +40,7 @@ def test_rating_printer():
 
 
 def test_print_directions():
-    directions_data = give_directions(place_id_parser(restaurant_data)).json()
+    directions_data = give_directions(place_id_parser(restaurant_data), starting_location_place_id).json()
     routes = directions_data['routes']
     routes_parts = routes[0]
     routes_dict = routes_parts['legs']

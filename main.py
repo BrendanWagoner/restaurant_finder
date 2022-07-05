@@ -13,8 +13,9 @@ def location_input():
     """
     starting_location = input("Enter a Location: ")
     starting_location_formatted = starting_location.replace(" ", "%20")
-    # TODO the line below is too long. Its an easy fix ill show you.
-    search = f"/maps/api/place/findplacefromtext/json?input={starting_location_formatted}&inputtype=textquery&fields=formatted_address%2Cname%2Crating%2Copening_hours%2Cgeometry%2cplace_id&key={api_key}"
+    search = f"/maps/api/place/findplacefromtext/json?input={starting_location_formatted}" \
+             f"&inputtype=textquery&fields=formatted_address" \
+             f"%2Cname%2Crating%2Copening_hours%2Cgeometry%2cplace_id&key={api_key}"
     url = f"{base_url}{search}"
     response = requests.request("GET", url)
     return response
@@ -97,7 +98,8 @@ def give_directions(destination_place_id: str, starting_location_place_id: str) 
     :param destination_place_id: should be a string of numbers and letters
     :return: a response from Google, returning data
     """
-    directions = f"maps/api/directions/json?origin=place_id:{starting_location_place_id}&destination=place_id:{destination_place_id}&key={api_key}"
+    directions = f"maps/api/directions/json?origin=place_id:{starting_location_place_id}" \
+                 f"&destination=place_id:{destination_place_id}&key={api_key}"
     directions_url = f"{base_url}{directions}"
     directions_response = requests.request("GET", directions_url)
     return directions_response
@@ -116,7 +118,8 @@ def print_directions(direction_data: dict):
     steps_dict = legs_dict['steps']
     for step in steps_dict:
         html_instructions = step['html_instructions']
-        remove_symbols_instructions = html_instructions.replace("<b>", "").replace("</b>", "").replace("'", "").replace("</div>", "").replace('<div style="font-size:0.9em">', ' ')
+        remove_symbols_instructions = html_instructions.replace("<b>", "").replace("</b>", "")\
+            .replace("'", "").replace("</div>", "").replace('<div style="font-size:0.9em">', ' ')
         print(remove_symbols_instructions)
 
 
@@ -138,9 +141,9 @@ def main():
     Runs the whole process. Gathers the data, and prints strings for the rating_printer, and the print_directions
     """
     location_data = location_input().json()
-    # TODO you dont need to call the return_lat_long() function twice. Just call it once and divide it
-    my_lat = return_lat_long(location_data)[0]
-    my_long = return_lat_long(location_data)[-1]
+    lat_long = return_lat_long(location_data)
+    my_lat = lat_long[0]
+    my_long = lat_long[1]
     restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
     directions_data = give_directions(place_id_parser(restaurant_data), location_place_id(location_data)).json()
     rating_printer(restaurant_data)

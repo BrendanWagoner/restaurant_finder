@@ -8,10 +8,10 @@ api_key = os.environ["MAP_API_KEY"]
 
 def location_input(starting_location):
     """
-    Takes input from the user, and returns a dictionary of data regarding the location entered
-    :return: a response from place api
+    Takes input from the user, and returns a dictionary of data regarding the location entered. Uses the Google Place
+    API to find the dictionary json.
+    :return: dictionary including lat and long
     """
-    # starting_location = input("Enter a Location: ")
     starting_location_formatted = starting_location.replace(" ", "%20")
     search = f"/maps/api/place/findplacefromtext/json?input={starting_location_formatted}" \
              f"&inputtype=textquery&fields=formatted_address" \
@@ -39,7 +39,6 @@ def return_lat_long(location_data: dict):
 def find_restaurant_lat_long(lat: str, long: str) -> 'requests.models.Response':
     """
     Uses lat and long inorder to request restaurant data from googles api.
-
     :param lat: This is a string that represents the latitude.
     :param long: This is a string that represents the longitude.
     :return: A response object google's api
@@ -68,7 +67,7 @@ def place_id_parser(restaurant_data: dict):
 
 def location_place_id(location_data: dict):
     """
-    returns place id to use in directions api
+    parses through the location dictionary to return the Google Place id to use in the Google Directions API
     :param location_data: the data from location_input
     :return: the place id of the location you entered
     """
@@ -82,7 +81,7 @@ def name_rating_parser(restaurant_data: dict):
     """
     takes data from find_restaurant, and parses it to return the Name and Rating of the Restaurant
     :param restaurant_data: dict of restaurant data from find_restaurant
-    :return: a string for name, and a number for rating within 1.0-5.0
+    :return: returns a tuple that includes the name, and the rating of the restaurant
     """
     results = restaurant_data["results"]
     for restaurant in results:
@@ -107,11 +106,11 @@ def give_directions(destination_place_id: str, starting_location_place_id: str) 
 
 def print_directions(direction_data: dict):
     """
-    takes data from give_directions and returns a string from "html_instructions" and cleans it up to be readable
+    takes data from give_directions and converts instructions into a dictionary for the UI layer
     :param direction_data: a dictionary of data, including the directions
-    :return: prints out the string, nice and clean
+    :return: a dictionary of instructions labeled
     """
-    directions_instrucitons = {}
+    directions_instructions = {}
     routes = direction_data['routes']
     routes_parts = routes[0]
     routes_dict = routes_parts['legs']
@@ -123,27 +122,27 @@ def print_directions(direction_data: dict):
         remove_symbols_instructions = html_instructions.replace("<b>", "").replace("</b>", "")\
             .replace("'", "").replace("</div>", "").replace('<div style="font-size:0.9em">', ' ')
         # print(remove_symbols_instructions)
-        directions_instrucitons[f'direction_{num}'] = remove_symbols_instructions
+        directions_instructions[f'direction_{num}'] = remove_symbols_instructions
         num += 1
-    return directions_instrucitons
+    return directions_instructions
 
 
-def rating_printer(restaurant_data: dict):
+def name_rating_dict(restaurant_data: dict):
     """
-    takes name, and rating of restaurant, and prints a corresponding string depending on the rating
-    :return: a string
+    returns information from name_rating_parser and then returns a converted dictionary to be used in the UI Layer.
+    :param restaurant_data: a dictionary of data recieved by find_restaurant_lat_long.
+    :return: a dictionary that includes name and rating
     """
-    name = name_rating_parser(restaurant_data)[0]
-    rating = name_rating_parser(restaurant_data)[-1]
-    if rating >= 3.5:
-        print("The restaurant " + str(name) + " is a great choice with a rating of " + str(rating) + ".\n")
-    if rating < 3.5:
-        print("The restaurant " + str(name) + " is a risky choice with a rating of " + str(rating) + ".\n")
+    name_rating_tuple = name_rating_parser(restaurant_data)
+    name = name_rating_tuple[0]
+    rating = name_rating_tuple[1]
+    name_rating_data = {'name': name, 'rating': rating}
+    return name_rating_data
 
 
 def main(starting_location):
     """
-    Runs the whole process. Gathers the data, and prints strings for the rating_printer, and the print_directions
+    When called by the ui layer, it gathers all the needed data and gives it to the UI Layer to present.
     """
     location_data = location_input(starting_location).json()
     lat_long = return_lat_long(location_data)
@@ -151,16 +150,12 @@ def main(starting_location):
     my_long = lat_long[1]
     restaurant_data = find_restaurant_lat_long(my_lat, my_long).json()
     directions_data = give_directions(place_id_parser(restaurant_data), location_place_id(location_data)).json()
-    # rating_printer(restaurant_data)
     driving_directions = print_directions(directions_data)
+    names_rating_data = name_rating_dict(restaurant_data)
+    ui_info = [driving_directions, names_rating_data]
     # pprint(directions_data)
     # pprint(restaurant_data)
     # pprint(location_data)
-    # print(return_lat_long(location_data))
-    return driving_directions
+    return ui_info
 
-
-# TODO main should return data into a dictionary
-# TODO figure out what is a data function or a ui function
-# TODO separate UI layer and Data layer
 

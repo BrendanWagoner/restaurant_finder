@@ -32,4 +32,4 @@ Brendan Wagoner, and Jeremy Rodrigues
 
 ## Project Status
 
-Working on this project weekly, now can enter any location and recieve a response. 
+Working on this project weekly, adding a UI layer with Flask to make it much easier to look at. 

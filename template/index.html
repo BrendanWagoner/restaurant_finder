@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+<div class="restaurant_finder">
+    <h1> Restaurant Finder</h1>
+
+    <form action = "http://localhost:5000/location_input" method = "POST">
+        <p>Enter a starting location</p>
+        <p><input type="text" id="location" name="location"></p>
+        <p><input type="submit" value="submit"></p>
+    </form>
+</div>
+{% endblock %}

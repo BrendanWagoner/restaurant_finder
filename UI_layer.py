@@ -2,15 +2,6 @@ from main import main
 from pprint import pprint
 from flask import Flask, request, url_for, redirect, render_template
 
-# # starting_location = request.form['location']
-#
-# returned_data = main(starting_location)
-# #
-# name_rating_dict = returned_data[1]
-# direction_dict = returned_data[0]
-#
-# full_data = [direction_dict, name_rating_dict]
-
 
 def print_directions(main_data):
     """
@@ -23,7 +14,7 @@ def print_directions(main_data):
     num_of_keys = input_data.keys()
     for key in num_of_keys:
         directions_list.append(input_data[key])
-    return f'{directions_list}'
+    return ', '.join(directions_list)
 
 
 def print_rating(name_rating_data):
@@ -39,7 +30,7 @@ def print_rating(name_rating_data):
     if 2.0 < rating <= 3.5:
         return f'The restaurant {name} is a decent choice with a rating of {rating}'
     if rating > 3.5:
-        return f'The restaurant  {name} is an amazing choice with a rating of {rating}'
+        return f'The restaurant {name} is an amazing choice with a rating of {rating}'
 
 
 # rating_printer(name_rating_dict)
@@ -52,7 +43,12 @@ app = Flask(__name__, template_folder='template')
 
 
 @app.route('/restaurant_finder/<name>', methods=['POST', 'GET'])
-def r_f_answer(name):
+def result(name):
+    """
+    Redirects web page
+    :param name:
+    :return:
+    """
     if request.method == 'GET':
         location = name.replace('%', '')
         returned_data = main(location)
@@ -60,17 +56,17 @@ def r_f_answer(name):
         direction_dict = returned_data[0]
         # print(direction_dict)
         # print(print_rating(name_rating_dict))
-        information = [print_rating(name_rating_dict), print_directions(direction_dict)]
-        return f"{information}"
+        return render_template('results.html', direction=print_directions(direction_dict),
+                               name_rating=print_rating(name_rating_dict))
     else:
-        return render_template('fail.html')
+        return render_template('index.html')
 
 
 @app.route('/location_input', methods=['POST', 'GET'])
 def index():
     if request.method == 'POST':
         location = request.form['location']
-        return redirect(url_for('r_f_answer', name=location)), location
+        return redirect(url_for('result', name=location)), location
     else:
         return render_template('index.html')
 
